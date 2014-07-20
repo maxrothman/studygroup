@@ -9,7 +9,6 @@ import settings
 db = SQLAlchemy()
 oauth = OAuth()
 
-
 def create_baseline_data():
     from studygroup.models import GroupStatus
     group_statuses = [
