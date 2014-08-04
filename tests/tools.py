@@ -1,8 +1,8 @@
 """
 Tools to help test StudyGroup.
 """
-
 from flask.ext.testing import TestCase
+import mock
 
 from studygroup.application import create_app, db, create_baseline_data
 from studygroup.models import User
@@ -13,12 +13,21 @@ class StudyGroupTestCase(TestCase):
     Base class for all StudyGroup tests.
     """
     def setUp(self):
+        # If a test needs to send messages the class must define send_messages True
+        # Otherwise no test should send messages.
+        if not getattr(self, 'send_messages', False):
+            self.patcher = mock.patch('studygroup.messaging.meetup.post', spec=True)
+            self.patcher.start()
+
         db.create_all()
         create_baseline_data()
         self.alice_id = self.create_user(full_name='Alice B.')
         self.admin_id = self.create_user(full_name='Bob Admin', is_admin=True)
 
     def tearDown(self):
+        if getattr(self, 'send_messages', False):
+            self.patcher.stop()
+
         db.session.remove()
         db.drop_all()
 
