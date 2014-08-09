@@ -24,7 +24,7 @@ def create_baseline_data():
 
 
 def create_app(debug=True):
-    from views import studygroup
+    from controllers import studygroup
 
     app = Flask(__name__)
     app.debug = debug
