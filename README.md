@@ -22,14 +22,14 @@ You will run your development machine so that it pretends to be
         $ pip install -r requirements.txt
 
 3. Create a settings_local.py alongside settings.py, with details from the
-    OAuth consumer you just created:
+    OAuth consumer you just created and any database records you want added.
+    For those, the format is `('model_name', {arg1:val, arg2:val, ...})`
 
         SQLALCHEMY_DATABASE_URI = "sqlite:////tmp/studygroup.db"
 
-        from studygroup.models import User
         debug_models = [
-            User(id=0, meetup_member_id=0, full_name ="Debug Admin", is_admin=True),
-            User(id=1, meetup_member_id=1, full_name ="Debug User", is_admin=False),
+            ('User', dict(id=0, meetup_member_id=0, full_name ="Debug Admin", is_admin=True)),
+            ('User', dict(id=1, meetup_member_id=1, full_name ="Debug User", is_admin=False)),
         ]
 
 4. Create the database tables:
