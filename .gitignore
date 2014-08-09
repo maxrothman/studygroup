@@ -40,3 +40,6 @@ settings_local.py*
 
 # PyCharm
 .idea
+
+# virtualenv
+venv/

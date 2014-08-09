@@ -8,10 +8,50 @@ group.
 Developing
 ==========
 
-Study Group uses OAuth authentication with meetup.com, so you will need to
-configure to be able to perform that authentication.  You will run your
-development machine so that it pretends to be
+You will run your development machine so that it pretends to be
 "dev-studygroup.bostonpython.com":
+
+1. [Create](http://virtualenv.readthedocs.org/en/latest/virtualenv.html#usage)
+    a virtualenv named venv and
+    [activate](http://virtualenv.readthedocs.org/en/latest/virtualenv.html#activate-script) it. 
+    ([Install virtualenv](http://virtualenv.readthedocs.org/en/latest/virtualenv.html#installation) 
+    if you haven't already.)
+
+2. Install the requirements:
+
+        $ pip install -r requirements.txt
+
+3. Create a settings_local.py alongside settings.py, with details from the
+    OAuth consumer you just created:
+
+        SQLALCHEMY_DATABASE_URI = "sqlite:////tmp/studygroup.db"
+
+        from studygroup.models import User
+        debug_models = [
+            User(id=0, meetup_member_id=0, full_name ="Debug Admin", is_admin=True),
+            User(id=1, meetup_member_id=1, full_name ="Debug User", is_admin=False),
+        ]
+
+4. Create the database tables:
+
+        $ python manage.py db upgrade
+
+4. Populate the database with the records you listed in settings_local.py:
+
+        $ python manage.py populate
+
+5. Start the server:
+
+        $ python run_server.py -p 8080
+
+6. To sign in, go a URL of this form in your browser: 
+
+        `http://localhost:8080/debug_login?id=<user_id>`
+
+###Optional: set up OAuth
+
+Study Group uses OAuth authentication with meetup.com, so to test
+that functionality you will need to do a few extra steps.
 
 1. Go to http://www.meetup.com/meetup_api/, and click "OAuth Consumers".
 
@@ -20,29 +60,14 @@ development machine so that it pretends to be
         Consumer Name: Boston Python Study Groups (Dev)
         Redirect URI: http://localhost:8080/
 
-3. Create a settings_local.py alongside settings.py, with details from the
-    OAuth consumer you just created:
+3. Add the following to your setttings_local.py:
 
         MEETUP_GROUP_ID = 469457    # Boston Python, use this exactly.
         MEETUP_OAUTH_KEY = "esgls3vaf5k7d9ufrvj0jtuvo0"     # Fill in with your own key
         MEETUP_OAUTH_SECRET = "mgi9mlaagc24o8a3f4hcvu0mb0"  #   .. and secret.
-        SQLALCHEMY_DATABASE_URI = "sqlite:////tmp/studygroup.db"
-
-4. Create the database tables:
-
-        $ python manage.py db upgrade
-
-5. Start the server:
-
-        $ python run_server.py -p 8080
-
-6. Visit the page in your browser using the URL http://localhost:8080.
-    You should see the Study Group page, and your server window should show
-    URLs being served.
 
 7. If you click the Sign In Now button, it should take you to meetup.com and
     ask you to authorize Boston Python Study Groups.
-
 
 Running tests
 =============

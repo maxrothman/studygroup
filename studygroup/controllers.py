@@ -1,5 +1,5 @@
 from flask import (g, request, redirect, render_template,
-                   session, url_for, jsonify, Blueprint, abort)
+                   session, url_for, jsonify, Blueprint, current_app, abort)
 
 from .models import User, Group, Membership
 from .application import db, meetup
@@ -14,7 +14,7 @@ studygroup = Blueprint("studygroup", __name__, static_folder='static')
 @studygroup.before_request
 def load_user():
     user_id = session.get('user_id')
-    if user_id:
+    if user_id is not None:     #so it can auth users with id=0
         g.user = User.query.filter_by(id=user_id).first()
     else:
         g.user = None
@@ -139,6 +139,21 @@ def boom():
 def login():
     return meetup.authorize(callback=url_for('.authorized', _external=True))
 
+@studygroup.route('/debug_login')
+def debug_login():
+    if current_app.debug:
+        user = User.query.filter_by(id=request.args.get('id')).first()
+        if user:
+            session['user_id'] = request.args.get('id')
+            return '''<meta http-equiv="refresh" content="2;url={}">logged in as {}'''.format(
+                url_for('.index'),
+                user.full_name
+            )
+        else:
+            return "No user with id=" + request.args.get('id')
+    else:
+        #this should probably be logged
+        return redirect(url_for('.index'))
 
 @studygroup.route('/logout')
 def logout():
